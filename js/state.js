@@ -1,4 +1,5 @@
 export const state = {
+  user: null,
   selectedYear: new Date().getFullYear(),
 
   selectedMonth: new Date().getMonth(),
