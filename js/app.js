@@ -3,12 +3,19 @@ import { state } from "./state.js";
 import { showLoading, hideLoading, showToast } from "./ui.js";
 import { auth, db } from "./firebase.js";
 import { initializeAuth } from "./auth.js";
+
 import {
   addTransaction,
   loadTransactions,
   removeTransaction,
   editTransaction,
 } from "./transactions.js";
+
+import { setupForm } from "./form.js";
+
+import { renderTransactions } from "./render.js";
+
+import { setupModals } from "./modals.js";
 
 const app = {
   state,
@@ -19,6 +26,7 @@ const app = {
   loadTransactions,
   removeTransaction,
   editTransaction,
+  renderTransactions,
 
   showLoading,
   hideLoading,
@@ -31,8 +39,16 @@ async function initializeApp() {
   try {
     await initializeAuth(app);
     await loadTransactions();
+    await loadTransactions();
 
     setupNavigation(app);
+    setupForm(app);
+
+    const modals = setupModals();
+
+    app.openModal = modals.openModal;
+
+    app.closeModal = modals.closeModal;
 
     app.showToast("Aplicação iniciada");
   } catch (error) {
@@ -44,6 +60,6 @@ async function initializeApp() {
   }
 }
 
-setupNavigation(app);
+initializeApp();
 
 window.app = app;
