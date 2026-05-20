@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Financeiro</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div id="app">
+      <!-- Loading -->
+      <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div id="loadingText">Carregando...</div>
+      </div>
+
+      <!-- Toast -->
+      <div id="toast" class="toast"></div>
+
+      <!-- Header -->
+      <header class="header">
+        <div class="header-content">
+          <h1>Gerenciador Pro</h1>
+          <div class="header-controls">
+            <select id="yearSelect"></select>
+            <select id="monthSelect"></select>
+          </div>
+        </div>
+      </header>
+
+      <!-- Search -->
+      <div class="search-container">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Buscar transação ou categoria..."
+        />
+      </div>
+
+      <!-- Main Content -->
+      <main class="main">
+        <!-- Resumo Tab -->
+        <div id="resumo" class="tab-content">
+          <div id="summaryContainer" class="summary"></div>
+
+          <div class="chart-container">
+            <div class="chart-title">Distribuição de Gastos</div>
+            <div class="chart-wrapper" style="height: 250px">
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <div class="chart-title">Fluxo de Caixa Anual</div>
+            <div class="chart-wrapper" style="height: 250px">
+              <canvas id="annualChart"></canvas>
+            </div>
+          </div>
+
+          <!-- NOVO: Container para o gráfico de categoria anual -->
+          <div
+            id="categoryAnnualChartContainer"
+            class="chart-container"
+            style="display: none"
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+              "
+            >
+              <div
+                class="chart-title"
+                id="categoryAnnualTitle"
+                style="margin-bottom: 0"
+              >
+                Evolução da Categoria
+              </div>
+              <select
+                id="categoryAnnualSelector"
+                style="padding: 4px 8px; font-size: 12px"
+              ></select>
+            </div>
+            <div class="chart-wrapper" style="height: 250px">
+              <canvas id="categoryAnnualChart"></canvas>
+            </div>
+            <div
+              id="categoryAnnualTransactions"
+              style="margin-top: 20px; border-top: 1px solid var(--border)"
+            >
+              <!-- Transações do mês selecionado no gráfico aparecerão aqui -->
+            </div>
+          </div>
+
+          <div id="annualSummaryContainer" class="annual-summary"></div>
+
+          <div id="insightsContainer"></div>
+        </div>
+
+        <!-- Receitas Tab -->
+        <div id="receitas" class="tab-content hidden">
+          <div id="receitasView">
+            <div id="receitasList" class="transactions"></div>
+          </div>
+          <div id="receitasDetailView" class="hidden">
+            <div class="breadcrumb">
+              <button
+                class="breadcrumb-back"
+                onclick="app.showCategoryView('receitas')"
+              >
+                ← Voltar
+              </button>
+              <div
+                id="receitasDetailTitle"
+                style="font-weight: 700; font-size: 14px"
+              ></div>
+            </div>
+            <div
+              id="receitasDetailSort"
+              style="margin-bottom: 10px; text-align: right"
+            ></div>
+            <div id="receitasDetailList" class="transactions"></div>
+          </div>
+        </div>
+
+        <!-- Gastos Tab -->
+        <div id="gastos" class="tab-content hidden">
+          <div id="gastosView">
+            <div id="gastosList" class="transactions"></div>
+          </div>
+          <div id="gastosDetailView" class="hidden">
+            <div class="breadcrumb">
+              <button
+                class="breadcrumb-back"
+                onclick="app.showCategoryView('gastos')"
+              >
+                ← Voltar
+              </button>
+              <div
+                id="gastosDetailTitle"
+                style="font-weight: 700; font-size: 14px"
+              ></div>
+            </div>
+            <div
+              id="gastosDetailSort"
+              style="margin-bottom: 10px; text-align: right"
+            ></div>
+            <div id="gastosDetailList" class="transactions"></div>
+          </div>
+        </div>
+
+        <!-- Pendentes Tab -->
+        <div id="pendentes" class="tab-content hidden">
+          <div id="pendentesView">
+            <div id="pendentesList" class="transactions"></div>
+          </div>
+          <div id="pendentesDetailView" class="hidden">
+            <div class="breadcrumb">
+              <button
+                class="breadcrumb-back"
+                onclick="app.showCategoryView('pendentes')"
+              >
+                ← Voltar
+              </button>
+              <div
+                id="pendentesDetailTitle"
+                style="font-weight: 700; font-size: 14px"
+              ></div>
+            </div>
+            <div
+              id="pendentesDetailSort"
+              style="margin-bottom: 10px; text-align: right"
+            ></div>
+            <div id="pendentesDetailList" class="transactions"></div>
+          </div>
+        </div>
+      </main>
+
+      <!-- FAB -->
+      <button id="fabButton" class="fab">+</button>
+
+      <!-- Bottom Nav -->
+      <nav class="bottom-nav">
+        <div class="nav-item active" data-tab="resumo">
+          <span class="nav-icon">📊</span>
+          <span>Resumo</span>
+        </div>
+        <div class="nav-item" data-tab="receitas">
+          <span class="nav-icon">💰</span>
+          <span>Receitas</span>
+        </div>
+        <div class="nav-item" data-tab="gastos">
+          <span class="nav-icon">💸</span>
+          <span>Gastos</span>
+        </div>
+        <div class="nav-item" data-tab="pendentes">
+          <span class="nav-icon">⏳</span>
+          <span>Pendentes</span>
+        </div>
+      </nav>
+
+      <!-- Modal Transação -->
+      <div id="modal" class="modal">
+        <div class="modal-content">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+            "
+          >
+            <h2 id="modalTitle">Nova Transação</h2>
+            <button id="modalClose" class="modal-close">&times;</button>
+          </div>
+
+          <form id="transactionForm">
+            <div class="form-group">
+              <label>Tipo</label>
+              <select id="transactionType">
+                <option value="gasto">Gasto</option>
+                <option value="receita">Receita</option>
+                <option value="pendente">Pendente</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Categoria</label>
+              <div style="display: flex; gap: 8px">
+                <select id="transactionCategory" style="flex: 1"></select>
+                <button
+                  type="button"
+                  onclick="app.openCategoryModal()"
+                  style="
+                    padding: 0 12px;
+                    border-radius: 10px;
+                    border: 1px solid var(--border);
+                    background: white;
+                  "
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Descrição</label>
+              <input
+                type="text"
+                id="transactionDescription"
+                placeholder="Ex: Aluguel, Salário..."
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Valor (R$)</label>
+              <input
+                type="text"
+                id="transactionValue"
+                placeholder="0,00"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Data</label>
+              <input type="date" id="transactionDate" required />
+            </div>
+
+            <div id="installmentsGroup" class="form-group hidden">
+              <label>Parcelas</label>
+              <input type="number" id="transactionInstallments" value="1" />
+            </div>
+
+            <div id="recurrentGroup" class="form-group">
+              <label style="display: flex; align-items: center; gap: 8px">
+                <input type="checkbox" id="isRecurrent" style="width: auto" />
+                Repetir até o fim do ano
+              </label>
+            </div>
+
+            <div id="editFutureGroup" class="form-group hidden">
+              <label style="display: flex; align-items: center; gap: 8px">
+                <input type="checkbox" id="editFuture" style="width: auto" />
+                Atualizar parcelas futuras
+              </label>
+            </div>
+
+            <button type="submit" class="btn-block">Salvar</button>
+            <button
+              type="button"
+              id="formCancel"
+              class="btn-block"
+              style="
+                background: none;
+                color: var(--text-secondary);
+                margin-top: 8px;
+              "
+            >
+              Cancelar
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal Nova Categoria -->
+      <div id="categoryModal" class="modal">
+        <div class="modal-content">
+          <h2>Nova Categoria</h2>
+          <form id="categoryForm" style="margin-top: 20px">
+            <div class="form-group">
+              <input
+                type="text"
+                id="newCategoryName"
+                placeholder="Nome da categoria"
+                required
+              />
+            </div>
+            <button type="submit" class="btn-block">Adicionar</button>
+            <button
+              type="button"
+              onclick="app.closeCategoryModal()"
+              class="btn-block"
+              style="
+                background: none;
+                color: var(--text-secondary);
+                margin-top: 8px;
+              "
+            >
+              Cancelar
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal Confirmação -->
+      <div id="confirmModal" class="confirm-modal">
+        <div class="confirm-content">
+          <h3 id="confirmTitle" class="confirm-title">Confirmar</h3>
+          <p id="confirmMessage" class="confirm-message"></p>
+          <div class="confirm-actions">
+            <button
+              class="btn-confirm btn-cancel"
+              onclick="app.closeConfirmModal()"
+            >
+              Não
+            </button>
+            <button id="confirmActionButton" class="btn-confirm btn-success">
+              Sim
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
